@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Log Workouts - ACEest Fitness{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Log Your Workouts</h1>
+    
+    <div class="workout-form-container">
+        <form id="workoutForm" class="workout-form">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required class="form-control">
+                    <option value="Warm-up">Warm-up</option>
+                    <option value="Workout" selected>Workout</option>
+                    <option value="Cool-down">Cool-down</option>
+                    <option value="Cardio">Cardio</option>
+                    <option value="Strength">Strength Training</option>
+                    <option value="Flexibility">Flexibility</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="exercise">Exercise Name</label>
+                <input type="text" id="exercise" name="exercise" required 
+                       placeholder="e.g., Running, Push-ups, Yoga" class="form-control">
+            </div>
+            
+            <div class="form-group">
+                <label for="duration">Duration (minutes)</label>
+                <input type="number" id="duration" name="duration" required 
+                       min="1" max="300" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">✅ Log Workout</button>
+            <button type="button" onclick="loadSummary()" class="btn btn-secondary">📊 View Summary</button>
+        </form>
+    </div>
+    
+    <div id="workoutSummary" class="workout-summary" style="display: none;">
+        <h2>Workout Summary</h2>
+        <div id="summaryContent"></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('workoutForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch('{{ url_for("api_workouts") }}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(`Workout logged! Calories burned: ${result.workout.calories}`);
+            e.target.reset();
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        alert('Failed to log workout. Please try again.');
+    }
+});
+
+async function loadSummary() {
+    try {
+        const response = await fetch('{{ url_for("workout_summary") }}');
+        const result = await response.json();
+        
+        if (result.success) {
+            const summary = result.summary;
+            let html = `
+                <div class="summary-stats">
+                    <p><strong>Total Workouts:</strong> ${summary.total_workouts}</p>
+                    <p><strong>Total Duration:</strong> ${summary.total_duration} minutes</p>
+                    <p><strong>Total Calories:</strong> ${summary.total_calories.toFixed(2)} cal</p>
+                </div>
+                <h3>By Category</h3>
+                <table class="workout-table">
+                    <thead>
+                        <tr><th>Category</th><th>Count</th><th>Duration</th><th>Calories</th></tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const [category, stats] of Object.entries(summary.by_category)) {
+                html += `
+                    <tr>
+                        <td>${category}</td>
+                        <td>${stats.count}</td>
+                        <td>${stats.duration} min</td>
+                        <td>${stats.calories.toFixed(2)} cal</td>
+                    </tr>
+                `;
+            }
+            
+            html += '</tbody></table>';
+            document.getElementById('summaryContent').innerHTML = html;
+            document.getElementById('workoutSummary').style.display = 'block';
+        }
+    } catch (error) {
+        alert('Failed to load summary.');
+    }
+}
+</script>
+{% endblock %}

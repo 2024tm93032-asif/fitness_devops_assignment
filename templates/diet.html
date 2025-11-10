@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Diet Guide - ACEest Fitness{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Personalized Diet Guide</h1>
+    
+    <div class="diet-overview">
+        <div class="diet-card">
+            <h3>Daily Calorie Target</h3>
+            <p class="diet-number">{{ daily_calories }} cal</p>
+            <small>Based on your BMR and activity level</small>
+        </div>
+        
+        <div class="diet-card">
+            <h3>BMI Status</h3>
+            <p class="diet-number">{{ user.bmi }}</p>
+            <small>
+                {% if user.bmi < 18.5 %}Underweight
+                {% elif user.bmi < 25 %}Normal
+                {% elif user.bmi < 30 %}Overweight
+                {% else %}Obese
+                {% endif %}
+            </small>
+        </div>
+    </div>
+    
+    <div class="macros-section">
+        <h2>Recommended Macronutrients</h2>
+        <div class="macros-grid">
+            <div class="macro-card">
+                <div class="macro-icon">🥩</div>
+                <h4>Protein</h4>
+                <p class="macro-amount">{{ diet_plan.protein }}g</p>
+                <small>30% of daily calories</small>
+            </div>
+            
+            <div class="macro-card">
+                <div class="macro-icon">🍚</div>
+                <h4>Carbohydrates</h4>
+                <p class="macro-amount">{{ diet_plan.carbs }}g</p>
+                <small>40% of daily calories</small>
+            </div>
+            
+            <div class="macro-card">
+                <div class="macro-icon">🥑</div>
+                <h4>Fats</h4>
+                <p class="macro-amount">{{ diet_plan.fats }}g</p>
+                <small>30% of daily calories</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="recommendations-section">
+        <h2>Personalized Recommendations</h2>
+        <ul class="recommendations-list">
+            {% for recommendation in diet_plan.recommendations %}
+            <li>✅ {{ recommendation }}</li>
+            {% endfor %}
+            <li>💧 Drink at least 2-3 liters of water daily</li>
+            <li>🥗 Include plenty of vegetables and fruits</li>
+            <li>🚫 Avoid processed and sugary foods</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

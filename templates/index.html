@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Home - ACEest Fitness{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to ACEest Fitness & Gym</h1>
+            <p class="hero-subtitle">Your Complete Fitness Management Solution</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose ACEest Fitness?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏋️</div>
+                    <h3>Track Workouts</h3>
+                    <p>Log and monitor your exercise sessions with detailed tracking</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Progress Analytics</h3>
+                    <p>Visualize your fitness journey with comprehensive charts</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🥗</div>
+                    <h3>Diet Planning</h3>
+                    <p>Get personalized nutrition guidance based on your goals</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💪</div>
+                    <h3>Calorie Tracking</h3>
+                    <p>Monitor calories burned and nutritional intake</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

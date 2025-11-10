@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - ACEest Fitness{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Dashboard</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🏋️</div>
+            <div class="stat-info">
+                <h3>Total Workouts</h3>
+                <p class="stat-number">{{ total_workouts }}</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-info">
+                <h3>Total Duration</h3>
+                <p class="stat-number">{{ total_duration }} min</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💪</div>
+            <div class="stat-info">
+                <h3>BMI</h3>
+                <p class="stat-number">{{ user.bmi }}</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-info">
+                <h3>BMR</h3>
+                <p class="stat-number">{{ user.bmr }} cal</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <div class="recent-workouts">
+            <h2>Recent Workouts (Last 7 Days)</h2>
+            {% if recent_workouts %}
+            <table class="workout-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Exercise</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for workout in recent_workouts %}
+                    <tr>
+                        <td>{{ workout.date }}</td>
+                        <td><span class="badge">{{ workout.category }}</span></td>
+                        <td>{{ workout.exercise }}</td>
+                        <td>{{ workout.duration }} min</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">No recent workouts. Start logging your exercises!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

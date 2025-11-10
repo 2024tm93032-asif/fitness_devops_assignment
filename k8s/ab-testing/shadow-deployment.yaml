@@ -1,0 +1,112 @@
+# Shadow Deployment (Traffic Mirroring)
+
+# Production Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-production
+  namespace: aceest-fitness
+  labels:
+    app: aceest-fitness
+    env: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      env: production
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        env: production
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: your-dockerhub-username/aceest-fitness:v1.0.0
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+---
+# Shadow Deployment (receives mirrored traffic)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-fitness-shadow
+  namespace: aceest-fitness
+  labels:
+    app: aceest-fitness
+    env: shadow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aceest-fitness
+      env: shadow
+  template:
+    metadata:
+      labels:
+        app: aceest-fitness
+        env: shadow
+    spec:
+      containers:
+      - name: aceest-fitness
+        image: your-dockerhub-username/aceest-fitness:v2.0.0
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ENVIRONMENT
+          value: "shadow"
+---
+# Production Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-production-svc
+  namespace: aceest-fitness
+spec:
+  selector:
+    app: aceest-fitness
+    env: production
+  ports:
+  - port: 80
+    targetPort: 5000
+---
+# Shadow Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: aceest-fitness-shadow-svc
+  namespace: aceest-fitness
+spec:
+  selector:
+    app: aceest-fitness
+    env: shadow
+  ports:
+  - port: 80
+    targetPort: 5000
+---
+# Istio VirtualService for Traffic Mirroring
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: aceest-fitness-mirror
+  namespace: aceest-fitness
+spec:
+  hosts:
+  - aceest-fitness-service
+  http:
+  - route:
+    - destination:
+        host: aceest-fitness-production-svc
+        port:
+          number: 80
+      weight: 100
+    mirror:
+      host: aceest-fitness-shadow-svc
+      port:
+        number: 80
+    mirrorPercentage:
+      value: 100.0

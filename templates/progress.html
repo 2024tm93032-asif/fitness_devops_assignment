@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Progress - ACEest Fitness{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title">Your Progress</h1>
+    
+    <div class="progress-container">
+        <div class="chart-card">
+            <h3>Weekly Activity</h3>
+            <canvas id="weeklyChart"></canvas>
+        </div>
+        
+        <div class="chart-card">
+            <h3>Workout Distribution</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+async function loadProgressData() {
+    try {
+        const response = await fetch('{{ url_for("workout_summary") }}');
+        const result = await response.json();
+        
+        if (result.success) {
+            renderCharts(result.summary);
+        }
+    } catch (error) {
+        console.error('Failed to load progress data:', error);
+    }
+}
+
+function renderCharts(summary) {
+    // Weekly Chart
+    const weeklyData = summary.weekly_stats;
+    const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+    new Chart(weeklyCtx, {
+        type: 'line',
+        data: {
+            labels: Object.keys(weeklyData),
+            datasets: [{
+                label: 'Duration (minutes)',
+                data: Object.values(weeklyData),
+                borderColor: '#4CAF50',
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+    
+    // Category Chart
+    const categoryData = summary.by_category;
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+                data: Object.values(categoryData).map(c => c.duration),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', 
+                    '#4BC0C0', '#9966FF', '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+}
+
+loadProgressData();
+</script>
+{% endblock %}
